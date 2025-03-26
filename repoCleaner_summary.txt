@@ -6,9 +6,5 @@ Repository: amsanjeevkumar01/gh-ost
    - Stale branches: 48
 
 Repository: amsanjeevkumar01/dmca
-   - Total branches: 25
-   - Stale branches: 24
-
-Deleted Branches:
-amsanjeevkumar01/dmca:
-   - update-1623176664
+   - Total branches: 24
+   - Stale branches: 23
