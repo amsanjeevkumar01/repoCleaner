@@ -165,6 +165,14 @@ def main():
         except Exception as e:
             print(f"Error processing {repo_name}: {e}")
 
+    for repo_name in repositories:
+        try:
+            repo = g.get_repo(repo_name)
+            summary = get_stale_branches(repo)
+            repo_summaries[repo_name] = summary
+        except Exception as e:
+            print(f"Error accessing {repo_name}: {e}")
+
     # Generate execution summary
     generate_summary(repo_summaries, deleted_branches)
 
