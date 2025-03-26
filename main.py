@@ -3,7 +3,7 @@ import datetime
 from github import Github
 from dotenv import load_dotenv
 
-# Load GitHub token from env
+# Load GitHub token from .env file
 load_dotenv()
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
@@ -20,18 +20,20 @@ SUMMARY_FILE = "repoCleaner_summary.txt"
 
 
 def read_repositories(file_path="masterRepoList.txt"):
+    """Read repository names from a text file."""
     with open(file_path, "r") as file:
         return [line.strip() for line in file if line.strip()]
 
 
 def get_stale_branches(repo, tw_years=TW_YEARS):
+    """Identify stale branches based on last commit date."""
     stale_branches = []
     all_branches = []
     cutoff_date = datetime.datetime.utcnow() - datetime.timedelta(days=tw_years * 365)
 
     for branch in repo.get_branches():
-        commit_date = branch.commit.commit.committer.date
-        commit_date = commit_date.replace(tzinfo=None)
+        commit_date = branch.commit.commit.committer.date  # Timezone-aware datetime
+        commit_date = commit_date.replace(tzinfo=None)  # Convert to naive UTC datetime
 
         all_branches.append(branch.name)
 
@@ -46,6 +48,7 @@ def get_stale_branches(repo, tw_years=TW_YEARS):
 
 
 def display_summary(repo_summaries):
+    """Display a consolidated summary of all repositories."""
     print("\nConsolidated Summary:")
     print("=" * 50)
 
@@ -54,17 +57,21 @@ def display_summary(repo_summaries):
         print(f"   - Total branches: {summary['total_branches']}")
         print(f"   - Stale branches: {summary['stale_branches']}")
 
+        if summary["stale_branches"] == summary["total_branches"]:
+            print("   - Recommendation: Consider deleting this repository as all branches are stale.")
+
         if summary["stale_branches"] > 0:
             for i, branch in enumerate(summary["stale_branch_list"], 1):
                 print(f"     {i}. {branch}")
 
 
 def user_confirmation(repo_summaries):
+    """Ask user which stale branches should be deleted across all repos."""
     to_delete = {}
 
     print("\nEnter branches to delete across all repositories")
     print("   - Use format: <repo_name>:<branch_number>")
-    print("   - Example: amsanjeev01/docs:1, amsanjeev01/dmca:2, amsanjeev01/docs:3")
+    print("   - Example: docs:1, dmca:2, docs:3")
     print("   - Type 'all' to delete ALL stale branches")
     print("   - Press Enter to skip deletion")
 
@@ -106,6 +113,7 @@ def delete_branch(repo, branch_name):
 
 
 def generate_summary(repo_summaries, deleted_branches):
+    """Write an executive summary to a file."""
     with open(SUMMARY_FILE, "w") as file:
         file.write("RepoCleaner Execution Summary\n")
         file.write("=" * 50 + "\n")
@@ -156,14 +164,6 @@ def main():
                     deleted_branches[repo_name].append(branch)
         except Exception as e:
             print(f"Error processing {repo_name}: {e}")
-
-    for repo_name in repositories:
-        try:
-            repo = g.get_repo(repo_name)
-            summary = get_stale_branches(repo)
-            repo_summaries[repo_name] = summary
-        except Exception as e:
-            print(f"Error accessing {repo_name}: {e}")
 
     # Generate execution summary
     generate_summary(repo_summaries, deleted_branches)

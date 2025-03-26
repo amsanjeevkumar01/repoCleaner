@@ -8,3 +8,11 @@ Repository: amsanjeevkumar01/gh-ost
 Repository: amsanjeevkumar01/dmca
    - Total branches: 24
    - Stale branches: 23
+
+Repository: amsanjeevkumar01/docs
+   - Total branches: 5
+   - Stale branches: 0
+
+Repository: amsanjeevkumar01/DPG-guidance
+   - Total branches: 3
+   - Stale branches: 3
